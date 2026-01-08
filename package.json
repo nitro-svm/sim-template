@@ -1,0 +1,26 @@
+{
+  "name": "sim-template",
+  "version": "1.0.0",
+  "description": "Basic template for high-fidelity Solana sims",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nitro-stream/bindings": "git+ssh://git@github.com/nitro-svm/nitro-stream.git#80222b5",
+    "@solana/web3.js": "^1.95.8",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}
