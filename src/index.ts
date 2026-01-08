@@ -1,5 +1,5 @@
 import { config as loadEnv } from 'dotenv';
-import { CreateSessionParams } from '@nitro-stream/bindings';
+import { CreateSessionParams } from '@nitro-svm/simulation-bindings';
 import { Simulation, SimulationConfig, SimulationParams } from './sim';
 
 loadEnv({ path: '.env.local' });

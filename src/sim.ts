@@ -3,7 +3,7 @@ import {
   AccountModifications,
   BacktestSession as Session,
   CreateSessionParams,
-} from "@nitro-stream/bindings";
+} from "@nitro-svm/simulation-bindings";
 import {
   AccountInfo,
   Connection,

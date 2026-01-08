@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@nitro-stream/bindings": "git+ssh://git@github.com/nitro-svm/nitro-stream.git#80222b5",
+    "@nitro-svm/simulation-bindings": "^0.1.0",
     "@solana/web3.js": "^1.95.8",
     "dotenv": "^17.2.3"
   },
