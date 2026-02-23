@@ -96,7 +96,7 @@ export class Simulation {
 
   private async handleReadyForContinue(): Promise<void> {
     // Custom logic can be added here for each slot progression
-    console.log(`<Insert custom logic at slot ${this.currentSlot}>`);
+    // console.log(`<Insert custom logic at slot ${this.currentSlot}>`);
 
     this.accountCache.clear();
     await this.sendUpdates();
