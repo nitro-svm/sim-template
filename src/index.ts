@@ -10,10 +10,11 @@ async function main() {
     simulationApiKey: process.env.SIMULATION_API_KEY || '',
   };
 
-  // Example params, replace with desired values
+  const START_SLOT = 370_980_636;
+
   const createSessionParams: CreateSessionParams = {
-    startSlot: 381_448_590, // 2025-11-21 01:52:31.000 UTC
-    endSlot: 381_450_590,   // 2025-11-21 02:05:41.000 UTC
+    startSlot: START_SLOT,
+    endSlot: START_SLOT + 100,
     accountEvents: [],
     signerFilter: [],
     preloadPrograms: [],
@@ -22,8 +23,9 @@ async function main() {
 
   const params: SimulationParams = {
     createSessionParams,
-    slotInterval: 10, // Process every 10 slots
+    slotInterval: 10, // Advance all 10 slots in one step
     runName: 'experiment-1',
+    programSubscriptions: ['jupeiUmn818Jg1ekPURTpr4mFo29p46vygyykFJ3wZC'],
   };
 
   // Create and run the sim

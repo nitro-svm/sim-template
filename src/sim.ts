@@ -21,6 +21,7 @@ export interface SimulationParams {
   createSessionParams: CreateSessionParams;
   slotInterval: number;
   runName: string;
+  programSubscriptions?: string[];
 }
 
 export type Accounts = Map<string, AccountInfo<Buffer>>;
@@ -31,6 +32,7 @@ export class Simulation {
   connection?: Connection;
 
   private session: Session;
+  private programSubIds: number[] = [];
   private resolveDone?: () => void;
   private rejectDone?: (err: unknown) => void;
   private done: Promise<void>;
@@ -86,6 +88,10 @@ export class Simulation {
     console.log(`  RPC endpoint: ${params.rpcEndpoint}`);
 
     this.setSessionUrl(params.sessionRpcUrl);
+
+    if (this.params.programSubscriptions?.length) {
+      this.setupProgramSubscriptions();
+    }
   }
 
   private async handleReadyForContinue(): Promise<void> {
@@ -98,13 +104,16 @@ export class Simulation {
 
   async handleSlot(slot: number): Promise<void> {
     this.currentSlot = slot;
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
+    if (process.stdout.isTTY) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+    }
     process.stdout.write(`--- Slot ${slot} ---\n`);
   }
 
   private async handleCompleted(): Promise<void> {
     this.session.close();
+    await this.removeProgramSubscriptions();
     console.log("\n✓ Simulation completed.");
     this.resolveDone?.();
   }
@@ -112,7 +121,19 @@ export class Simulation {
   private handleError(error: unknown): void {
     console.error(`  Server error: ${JSON.stringify(error)}`);
     this.session.close();
+    void this.removeProgramSubscriptions();
     this.rejectDone?.(error);
+  }
+
+  private async removeProgramSubscriptions(): Promise<void> {
+    for (const id of this.programSubIds) {
+      await this.connection?.removeProgramAccountChangeListener(id);
+    }
+    this.programSubIds = [];
+    // Force-close the underlying rpc-websockets client to stop its reconnect loop
+    // once the ephemeral session has ended.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.connection as any)?._rpcWebSocket?.close();
   }
 
   private buildAccountModifications(
@@ -150,6 +171,23 @@ export class Simulation {
     };
 
     await this.session.sendContinue(continueParams);
+  }
+
+  private setupProgramSubscriptions(): void {
+    if (!this.connection) throw new Error("Connection not initialized");
+
+    for (const program of this.params.programSubscriptions ?? []) {
+      console.log(`  Subscribing to program events: ${program}`);
+      const id = this.connection.onProgramAccountChange(
+        new PublicKey(program),
+        (keyedAccountInfo, context) => {
+          const pubkey = keyedAccountInfo.accountId.toBase58();
+          const { lamports, owner } = keyedAccountInfo.accountInfo;
+          console.log(`[Program event] slot=${context.slot} pubkey=${pubkey} lamports=${lamports} owner=${owner.toBase58()}`);
+        },
+      );
+      this.programSubIds.push(id);
+    }
   }
 
   private setSessionUrl(rpcUrl: string): void {
